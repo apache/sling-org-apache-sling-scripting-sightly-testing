@@ -116,6 +116,20 @@ public class SlingSpecificsSightlyIT {
         String pageContent = client.getStringContent(url, 500);
         assertTrue(pageContent.contains("java.lang.NullPointerException"));
     }
+    
+    @Test
+    public void testInterfaceUset() {
+        String url = launchpadURL + SLING_JAVA_USE_INTERFACE;
+        String pageContent = client.getStringContent(url, 500);
+        assertTrue(pageContent.contains("No use provider could resolve identifier"));
+    }
+    
+    @Test
+    public void testAbstractClassUse() {
+        String url = launchpadURL + SLING_JAVA_USE_ABSTRACT;
+        String pageContent = client.getStringContent(url, 500);
+        assertTrue(pageContent.contains("No use provider could resolve identifier"));
+    }
 
     @Test
     public void testInterfaceUset() {
