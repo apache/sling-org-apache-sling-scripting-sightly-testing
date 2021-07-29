@@ -142,6 +142,17 @@ public class SlingSpecificsSightlyIT {
         assertEquals("something", HTMLExtractor.innerHTML(url, pageContent, "#test-enum-staticmethod"));
     }
 
+    /**
+     * SLING-10677
+     */
+    @Test
+    public void testEnumValuesAsString() {
+        String url = launchpadURL + SLING_USE;
+        String pageContent = client.getStringContent(url, 200);
+        assertEquals("ENUM_CONSTANT", HTMLExtractor.innerHTML(url, pageContent, "#test-enum-value2-0"));
+        assertEquals("ENUM_CONSTANT2", HTMLExtractor.innerHTML(url, pageContent, "#test-enum-value2-1"));
+    }
+
     @Test
     public void testErroneousUseObject() {
         String url = launchpadURL + SLING_JAVA_USE_NPE;
