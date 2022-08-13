@@ -67,6 +67,7 @@ public class SlingSpecificsSightlyIT {
     private static final String SLING_REQUEST_ATTRIBUTES_INCLUDE = "/content/sightly/requestattributes.include.html";
     private static final String SLING_RESOURCE_USE = "/content/sightly/use.resource.html";
     private static final String SLING_I18N = "/content/sightly/i18n";
+    private static final String SLING_XSS = "/content/sightly/xss.html";
     private static final String TCK_XSS = "/sightlytck/exprlang/xss.html";
     private static final String WHITESPACE = "/content/sightly/whitespace.html";
     private static final String SYNTHETIC_RESOURCE = "/content/sightly/synthetic-resource.html";
@@ -436,6 +437,19 @@ public class SlingSpecificsSightlyIT {
         String url = launchpadURL + TCK_XSS;
         String pageContent = client.getStringContent(url, 200);
         assertTrue(pageContent.contains("<p id=\"req-context-8\" onclick=\"console.log('red')\">Paragraph</p>"));
+    }
+
+    @Test
+    public void testXSSJsonStringEscaping() {
+        String url = launchpadURL + SLING_XSS;
+        String pageContent = client.getStringContent(url, 200);
+        String expectedInlineJson =
+        "<script type=\"application/json\" id=\"json-string-1\">\n"
+        + "{\n"
+        + "  \"field\":\"\\\"\\t test\"\n"
+        + "}\n"
+        + "</script>";
+        assertTrue( "Page content was " + pageContent, pageContent.contains(expectedInlineJson));
     }
 
     @Test
