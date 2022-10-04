@@ -443,13 +443,21 @@ public class SlingSpecificsSightlyIT {
     public void testXSSJsonStringEscaping() {
         String url = launchpadURL + SLING_XSS;
         String pageContent = client.getStringContent(url, 200);
-        String expectedInlineJson =
-        "<script type=\"application/json\" id=\"json-string-1\">\n"
-        + "{\n"
-        + "  \"field\":\"\\\"\\t test\"\n"
-        + "}\n"
-        + "</script>";
-        assertTrue( "Page content was " + pageContent, pageContent.contains(expectedInlineJson));
+        String expectedScript = "{\n"
+                + "  \"@context\":\"https://schema.org\",\n"
+                + "  \"@type\":\"FAQPage\",\n"
+                + "  \"mainEntity\":[\n"
+                + "    {\n"
+                + "      \"@type\":\"Question\",\n"
+                + "      \"name\":\"Some question with special character \\\"':\\t\"\n"
+                + "      \"acceptedAnswer\":{\n"
+                + "        \"@type\":\"Answer\",\n"
+                + "        \"text\":\"42\"\n"
+                + "      }\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}";
+        assertEquals(expectedScript, HTMLExtractor.innerHTML(url, pageContent, "script"));
     }
 
     @Test
