@@ -67,6 +67,7 @@ public class SlingSpecificsSightlyIT {
     private static final String SLING_REQUEST_ATTRIBUTES_INCLUDE = "/content/sightly/requestattributes.include.html";
     private static final String SLING_RESOURCE_USE = "/content/sightly/use.resource.html";
     private static final String SLING_I18N = "/content/sightly/i18n";
+    private static final String SLING_XSS = "/content/sightly/xss.html";
     private static final String TCK_XSS = "/sightlytck/exprlang/xss.html";
     private static final String WHITESPACE = "/content/sightly/whitespace.html";
     private static final String SYNTHETIC_RESOURCE = "/content/sightly/synthetic-resource.html";
@@ -110,6 +111,47 @@ public class SlingSpecificsSightlyIT {
         String url = launchpadURL + SLING_USE;
         String pageContent = client.getStringContent(url, 200);
         assertEquals("ENUM_CONSTANT", HTMLExtractor.innerHTML(url, pageContent, "#test-enum"));
+    }
+
+    /**
+     * SLING-10677
+     */
+    @Test
+    public void testEnumValueAsString() {
+        String url = launchpadURL + SLING_USE;
+        String pageContent = client.getStringContent(url, 200);
+        assertEquals("ENUM_CONSTANT", HTMLExtractor.innerHTML(url, pageContent, "#test-enum-value"));
+    }
+
+    /**
+     * SLING-10677
+     */
+    @Test
+    public void testEnumStaticFieldAsString() {
+        String url = launchpadURL + SLING_USE;
+        String pageContent = client.getStringContent(url, 200);
+        assertEquals("static field1", HTMLExtractor.innerHTML(url, pageContent, "#test-enum-staticfield"));
+    }
+
+    /**
+     * SLING-10677
+     */
+    @Test
+    public void testEnumStaticMethodAsString() {
+        String url = launchpadURL + SLING_USE;
+        String pageContent = client.getStringContent(url, 200);
+        assertEquals("something", HTMLExtractor.innerHTML(url, pageContent, "#test-enum-staticmethod"));
+    }
+
+    /**
+     * SLING-10677
+     */
+    @Test
+    public void testEnumValuesAsString() {
+        String url = launchpadURL + SLING_USE;
+        String pageContent = client.getStringContent(url, 200);
+        assertEquals("ENUM_CONSTANT", HTMLExtractor.innerHTML(url, pageContent, "#test-enum-value2-0"));
+        assertEquals("ENUM_CONSTANT2", HTMLExtractor.innerHTML(url, pageContent, "#test-enum-value2-1"));
     }
 
     @Test
@@ -409,6 +451,27 @@ public class SlingSpecificsSightlyIT {
         String url = launchpadURL + TCK_XSS;
         String pageContent = client.getStringContent(url, 200);
         assertTrue(pageContent.contains("<p id=\"req-context-8\" onclick=\"console.log('red')\">Paragraph</p>"));
+    }
+
+    @Test
+    public void testXSSJsonStringEscaping() {
+        String url = launchpadURL + SLING_XSS;
+        String pageContent = client.getStringContent(url, 200);
+        String expectedScript = "{\n"
+                + "  \"@context\":\"https://schema.org\",\n"
+                + "  \"@type\":\"FAQPage\",\n"
+                + "  \"mainEntity\":[\n"
+                + "    {\n"
+                + "      \"@type\":\"Question\",\n"
+                + "      \"name\":\"Some question with special character \\\"':\\t\"\n"
+                + "      \"acceptedAnswer\":{\n"
+                + "        \"@type\":\"Answer\",\n"
+                + "        \"text\":\"42\"\n"
+                + "      }\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}";
+        assertEquals(expectedScript, HTMLExtractor.innerHTML(url, pageContent, "script"));
     }
 
     @Test
